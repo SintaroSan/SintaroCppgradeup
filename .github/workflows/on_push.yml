@@ -8,14 +8,10 @@ on:
 jobs:
   build_all:
     runs-on: ubuntu-latest
+    container:
+      image: gcc:latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up C++ environment
-        uses: actions/setup-cpp@v2
-        with:
-          gcc-version: '11'
-      - name: Install dependencies
-        run: sudo apt-get install -y cmake
       - name: Build all tasks
         run: |
           for TASK_DIR in members/*/task*; do
@@ -23,8 +19,21 @@ jobs:
             cd "$TASK_DIR"
             mkdir -p build && cd build
             cmake .. && make
+            
             if [ -f "solution" ]; then
+              echo "Running solution:"
               ./solution
             fi
+            
+            if [ -f "tests" ]; then
+              echo "Running tests:"
+              ./tests
+            fi
+            
             cd ../../..
           done
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: all-tasks-artifacts
+          path: members/*/task*/build/
