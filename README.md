@@ -70,20 +70,28 @@ add_executable(solution src/main.cpp)
 # Правила для участников
 
 -Всегда запускайте make format перед коммитом
+
 -Добавляйте тесты для всех случаев
+
 -Комментируйте сложные места в коде
+
 -Отвечайте на комментарии ревьювера в течение 24 часов
 
 ## Структура:
 members/ivanov-ivan/taskN/src/main.cpp
+
 members/ivanov-ivan/taskN/tests/testN.cpp
+
 members/ivanov-ivan/taskN/CMakeLists.txt          
 
 ## Минимальная структура:
+
 members/username/taskN/src/main.cpp
+
 members/username/taskN/CMakeLists.txt
 
 ## Ветки Git:
+
 1) Формат: surname-name-taskX
 2) Где X = e1..e10, m1..m10, h1..h10
 3) Пример: ivanov-ivan-taskm3
