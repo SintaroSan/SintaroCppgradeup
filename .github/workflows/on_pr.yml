@@ -1,0 +1,21 @@
+name: Task PR Check
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: seika/cxx-test:latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build
+        run: |
+          mkdir -p build
+          cd build
+          cmake ..
+          make
+      - name: Run tests
+        run: |
+          cd build
+          ctest --output-on-failure
