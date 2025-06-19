@@ -5,6 +5,8 @@ on: [pull_request]
 jobs:
   validate:
     runs-on: ubuntu-latest
+    container:
+      image: gcc:latest
     steps:
       - uses: actions/checkout@v4
       - name: Validate branch and structure
@@ -13,36 +15,37 @@ jobs:
             echo "::error::Branch name must be 'surname-name-task{e,m,h}{1..10}'"
             exit 1
           fi
-          
-          USER_DIR="${GITHUB_HEAD_REF%-task*}"
-          TASK_NAME="${GITHUB_HEAD_REF##*-}"
-          TASK_DIR="members/$USER_DIR/task$TASK_NAME"
-          
+
+          TASK_DIR="members/${GITHUB_HEAD_REF%-task*}/task${GITHUB_HEAD_REF##*-}"
           if [ ! -d "$TASK_DIR" ]; then
-            echo "::error::Directory $TASK_DIR not found"
+            echo "::error::Task directory $TASK_DIR not found"
             exit 1
           fi
 
   build:
     needs: [validate]
     runs-on: ubuntu-latest
+    container:
+      image: gcc:latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up C++ environment
-        uses: actions/setup-cpp@v2
-        with:
-          gcc-version: '11'
-      - name: Install CMake
-        run: sudo apt-get install -y cmake
       - name: Build and test
         run: |
-          USER_DIR="${GITHUB_HEAD_REF%-task*}"
-          TASK_NAME="${GITHUB_HEAD_REF##*-}"
-          cd "members/$USER_DIR/task$TASK_NAME"
-          
+          TASK_DIR="members/${GITHUB_HEAD_REF%-task*}/task${GITHUB_HEAD_REF##*-}"
+          cd "$TASK_DIR"
           mkdir -p build && cd build
           cmake .. && make
-          
+
           if [ -f "solution" ]; then
             ./solution
           fi
+          
+          # Запуск тестов если есть
+          if [ -f "tests" ]; then
+            ./tests
+          fi
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: task-artifacts
+          path: members/*/task*/build/
