@@ -3,6 +3,5 @@
 int main()
 {
   std::cout << "first task\n";
+  return 0;
 }
-
-return 0;
