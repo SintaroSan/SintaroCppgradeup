@@ -11,16 +11,20 @@ git clone https://github.com/SEIka1/cppgradeup.git
 cd cppgradeup
 
 # Создаем ветку для работы
-git checkout -b username-taskX
+git checkout -b username-taskN
 
 # Создаем папку для задания
-mkdir -p members/username/task1/tests
+mkdir -p members/surname-name/taskN/src
+# Аналогично для /tests
 
 # Создаем основной файл с решением
-touch members/username/task1/src.cpp
+touch members/username/taskN/src/main.cpp
+
+# Создаем CMakeLists.txt
+touch members/username/taskN/CMakeLists.txt
 
 # Опционально: создаем тесты
-touch members/username/task1/tests/test1.cpp
+touch members/username/taskN/tests/testN.cpp
 ```
 
 ### Локальная проверка
@@ -29,18 +33,27 @@ touch members/username/task1/tests/test1.cpp
 make format
 
 # Сборка и тестирование
-make build-members/username/task1
-make test-members/username/task1
+make build-members/username/taskN
+make test-members/username/taskN
 
 # Статический анализ
-make analyze-members/username/task1
+make analyze-members/username/taskN
 ```
 
 ### Фиксация изменений
 ```bash
-git add members/username/task1/
+git add .
 git commit -m "Реализация задания 1"
-git push origin username-task1
+git push origin username-taskN
+```
+
+### 5. Пример минимального CMakeLists.txt:
+```cmake
+cmake_minimum_required(VERSION 3.10)
+project(taskN)
+
+set(CMAKE_CXX_STANDARD 20)
+add_executable(solution src/main.cpp)
 ```
 
 ### Создание Pull Request
@@ -60,6 +73,22 @@ git push origin username-task1
 -Добавляйте тесты для всех случаев
 -Комментируйте сложные места в коде
 -Отвечайте на комментарии ревьювера в течение 24 часов
+
+## Структура:
+members/
+└── ivanov-ivan/
+    ├── taskN/
+    │   ├── src/
+    │   │   └── main.cpp
+    │   ├── tests/
+    │   └── CMakeLists.txt
+    └── taskN/
+        └── ...
+
+## Минимальная структура:
+members/username/taskN/
+├── src/main.cpp
+└── CMakeLists.txt
 
 ## 🛠 Основные команды
 
