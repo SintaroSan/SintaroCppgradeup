@@ -74,16 +74,16 @@ add_executable(solution src/main.cpp)
 -Комментируйте сложные места в коде
 -Отвечайте на комментарии ревьювера в течение 24 часов
 
-## Структура:
-members/
-└── ivanov-ivan/
-    ├── taskN/
-    │   ├── src/
-    │   │   └── main.cpp
-    │   ├── tests/
-    │   └── CMakeLists.txt
-    └── taskN/
-        └── ...
+## Структура:                //
+members/                     //
+└── ivanov-ivan/             //
+    ├── taskN/               //
+    │   ├── src/             //
+    │   │   └── main.cpp     //
+    │   ├── tests/           //
+    │   └── CMakeLists.txt   //
+    └── taskN/               //
+        └── ...              //
 
 ## Минимальная структура:
 members/username/taskN/
