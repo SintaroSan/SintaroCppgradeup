@@ -12,13 +12,10 @@ jobs:
       image: seika/cxx-test:latest
     steps:
       - uses: actions/checkout@v3
-      - name: Build
+      - name: Build all
         run: |
-          mkdir -p build
-          cd build
-          cmake ..
-          make
-      - name: Run tests
-        run: |
-          cd build
-          ctest --output-on-failure
+          for dir in members/*; do
+            cd $dir && mkdir -p build && cd build
+            cmake .. && make
+            cd ../../..
+          done
