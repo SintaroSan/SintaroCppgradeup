@@ -5,31 +5,32 @@ on: [pull_request]
 jobs:
   validate:
     runs-on: ubuntu-latest
-    container:
-      image: seika/cxx-test:latest
     steps:
       - uses: actions/checkout@v3
       - name: Validate branch and task names
         run: |
           if [[ ! $GITHUB_HEAD_REF =~ ^[a-z]+-[a-z]+-task[ehm][1-9]$|^[a-z]+-[a-z]+-task[ehm]10$ ]]; then
-            echo "::error::Branch name must be in format 'surname-name-task{e,m,h}{1..10}'"
+            echo "::error::Invalid branch name format"
             exit 1
           fi
-
           TASK_DIR="members/${GITHUB_HEAD_REF%-task*}/task${GITHUB_HEAD_REF##*-task}"
           if [ ! -d "$TASK_DIR" ]; then
-            echo "::error::Task directory $TASK_DIR not found"
+            echo "::error::Task directory not found"
             exit 1
           fi
 
   build:
     needs: [validate]
     runs-on: ubuntu-latest
-    container:
-      image: seika/cxx-test:latest
     steps:
       - uses: actions/checkout@v3
-      - name: Build task
+      - name: Set up C++
+        uses: actions/setup-cpp@v1
+        with:
+          gcc-version: '11'
+      - name: Install CMake
+        run: sudo apt-get install -y cmake
+      - name: Build
         run: |
           TASK_DIR="members/${GITHUB_HEAD_REF%-task*}/task${GITHUB_HEAD_REF##*-task}"
           cd "$TASK_DIR"
