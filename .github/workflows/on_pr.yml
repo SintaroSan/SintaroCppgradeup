@@ -10,12 +10,13 @@ jobs:
       - name: Validate branch and task names
         run: |
           if [[ ! $GITHUB_HEAD_REF =~ ^[a-z]+-[a-z]+-task[ehm][1-9]$|^[a-z]+-[a-z]+-task[ehm]10$ ]]; then
-            echo "::error::Invalid branch name format"
+            echo "::error::Branch name must be in format 'surname-name-task{e,m,h}{1..10}'"
             exit 1
           fi
+          
           TASK_DIR="members/${GITHUB_HEAD_REF%-task*}/task${GITHUB_HEAD_REF##*-task}"
           if [ ! -d "$TASK_DIR" ]; then
-            echo "::error::Task directory not found"
+            echo "::error::Task directory $TASK_DIR not found"
             exit 1
           fi
 
@@ -24,13 +25,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up C++
+      - name: Setup C++ environment
         uses: actions/setup-cpp@v1
         with:
           gcc-version: '11'
       - name: Install CMake
         run: sudo apt-get install -y cmake
-      - name: Build
+      - name: Build task
         run: |
           TASK_DIR="members/${GITHUB_HEAD_REF%-task*}/task${GITHUB_HEAD_REF##*-task}"
           cd "$TASK_DIR"
