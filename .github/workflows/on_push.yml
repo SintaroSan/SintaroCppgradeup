@@ -1,21 +1,30 @@
 name: Task Push Check
 
-on: 
+on:
   push:
     branches: [main, master]
   workflow_dispatch:
 
 jobs:
-  build:
+  build_all:
     runs-on: ubuntu-latest
-    container:
-      image: seika/cxx-test:latest
     steps:
       - uses: actions/checkout@v3
-      - name: Build all
+      - name: Setup C++ environment
+        uses: actions/setup-cpp@v1
+        with:
+          gcc-version: '11'
+      - name: Install dependencies
+        run: sudo apt-get install -y cmake
+      - name: Build all tasks
         run: |
-          for dir in members/*; do
-            cd $dir && mkdir -p build && cd build
+          for TASK_DIR in members/*/task*; do
+            echo "Building $TASK_DIR"
+            cd "$TASK_DIR"
+            mkdir -p build && cd build
             cmake .. && make
+            if [ -f "solution" ]; then
+              ./solution
+            fi
             cd ../../..
           done
