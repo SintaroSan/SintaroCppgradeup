@@ -3,49 +3,53 @@
 ## Полный workflow от создания кода до мержа PR
 
 ### 1. Подготовка окружения участником
+
 ```bash
 # Клонируем репозиторий
-git clone https://github.com/SEIka1/cppgradeup.git
-cd cppgradeup
+git clone git@github.com:SEIka1/cppgradeup.git
+cd cppgradeup/members/
 
-# Создаем ветку для работы
-git checkout -b username-taskN
+# Создание папки для заданий
+mkdir -p ivanov-ivan  # замените на свою фамилию-имя
+cd ivanov-ivan
 
-# Создаем папку для задания
-mkdir -p members/surname-name/taskN/src
+# Создание папки для задания
+mkdir -p taske1/src # для задания e1
+
 # Аналогично для /tests
+mkdir -p taske1/tests
+
+# Идём к заданию
+cd taske1
+
+# Создание ветки для задания
+git checkout -b ivanov-ivan-taske1  # замените на свои данные
 
 # Создаем основной файл с решением
 touch members/username/taskN/src/main.cpp
 
-# Создаем CMakeLists.txt
+# Создаем CMakeLists.txt что бы локально билдить решение
 touch members/username/taskN/CMakeLists.txt
 
 # Опционально: создаем тесты
 touch members/username/taskN/tests/testN.cpp
 ```
 
-### Локальная проверка
-```bash
-# Форматирование кода
-make format
-
-# Сборка и тестирование
-make build-members/username/taskN
-make test-members/username/taskN
-
-# Статический анализ
-make analyze-members/username/taskN
-```
+когда всё вроде как написано и готово к пушу:
 
 ### Фиксация изменений
 ```bash
-git add .
-git commit -m "Реализация задания 1"
-git push origin username-taskN
+git add src/main.cpp # не нужно добавлять свой CMakeLists.txt или на чём вы там собираете
+git commit -m "Решение задания e1"
+
+# Отправляет на гитхаб (если ветка уже есть)
+git push origin ivanov-ivan-taske1
+
+# Если ветка новая, Git попросит установить upstream:
+git push --set-upstream origin ivanov-ivan-taske1
 ```
 
-### 5. Пример минимального CMakeLists.txt:
+### 5. Пример минимального `CMakeLists.txt`:
 ```cmake
 cmake_minimum_required(VERSION 3.10)
 project(taskN)
@@ -54,12 +58,19 @@ set(CMAKE_CXX_STANDARD 20)
 add_executable(solution src/main.cpp)
 ```
 
-### Создание Pull Request
+CMakeLists.txt нужен вам для билдинга кода на своей машине, пушить его сюда не надо!
 
-1) Перейти на GitHub в форк репозитория
-2) Нажать "New Pull Request"
-3) Выбрать ветку с заданием
-4) Заполнить описание:
+### Создание `Pull Request`
+
+1) Перейти в репозиторий: `https://github.com/SEIka1/cppgradeup`
+2) Нажмите `Pull requests` → `New pull request`
+3) Выберите:
+
+      `.base`: `main`
+
+      `.compare`: `ivanov-ivan-taske1`
+
+4) Нажмите `Create pull request` и добавьте описание:
 
       i. Какое задание выполнено
 
@@ -67,11 +78,58 @@ add_executable(solution src/main.cpp)
 
       iii. Какие тесты добавлены
 
+### Ожидание проверки
+
+1. CI автоматически проверит код.
+
+2. Если есть ошибки, вы можете добавить новые коммиты в ветку и запушить их — PR обновится автоматически.
+
+## Обновление main после мержа
+
+После одобрения PR:
+
+```bash
+git checkout main      # переключиться на main
+
+git pull origin main   # обновить main
+
+# Можете так же удалить локальную ветку у себя, если я у вас принял задание -> его уже не придется редачить и зачем вам эта ветка тогда?
+git branch -d ivanov-ivan-taske1  # удалить локальную ветку
+
+# Если Git ругается (ветка не слита), используйте принудительное удаление:
+git branch -D ivanov-ivan-taske1
+
+# Что бы удалить эту ветку на гитхабе (скорее всего я ее сам удалю, когда приму у вас задание, так что не нужно это писать)
+git push origin --delete ivanov-ivan-taske1
+
+# Если так вышло, что вы удалили ветку у себя и здесь она тоже удалена, то её в крайнем случае можно восстановить:
+git checkout -b ivanov-ivan-taske1 <хэш-коммита>  # создать заново из коммита
+
+# Если всё круто - задание сдано, начинаем делать новое задание - создаем новую ветку для него и там так же работает (всё как и раньше)
+git checkout -b ivanov-ivan-taske2  # для задания e2
+```
+
+
 # Правила для участников
 
--Всегда запускайте make format перед коммитом
+-Не удаляйте ветки на GitHub, пока PR не принят!
 
--Добавляйте тесты для всех случаев
+-После мержа:
+
+      .Удалите ветку на GitHub (чтобы не засорять репозиторий).
+
+      .Локальную ветку можно удалить или оставить (например, для истории).
+
+-Пример безопасной работы:
+```bash
+# После мержа PR:
+git checkout main                  # переключиться на main
+git pull origin main              # обновиться
+git push origin --delete ivanov-ivan-taske1  # удалить на GitHub
+git branch -d ivanov-ivan-taske1  # (опционально) удалить локально
+```
+
+-Добавляйте тесты для всех случаев (начиная с задания E5)
 
 -Комментируйте сложные места в коде
 
@@ -82,13 +140,9 @@ members/ivanov-ivan/taskN/src/main.cpp
 
 members/ivanov-ivan/taskN/tests/testN.cpp
 
-members/ivanov-ivan/taskN/CMakeLists.txt          
-
 ## Минимальная структура:
 
 members/username/taskN/src/main.cpp
-
-members/username/taskN/CMakeLists.txt
 
 ## Ветки Git:
 
@@ -102,26 +156,6 @@ members/username/taskN/CMakeLists.txt
 
 Пример: для ветки petrov-peter-taskh4 → папка taskh4
 
-# Основные команды
-
-### Сборка и тестирование
-| Команда | Действие |
-|---------|----------|
-| `make all` | Собрать и протестировать все задания |
-| `make build` | Собрать все задания (без тестов) |
-| `make test` | Запустить тесты для всех заданий |
-| `make build-members/user1/task1` | Собрать конкретное задание |
-| `make test-members/user1/task1` | Протестировать конкретное задание |
-
-### Дополнительные инструменты
-| Команда | Действие |
-|---------|----------|
-| `make clean` | Удалить все собранные файлы |
-| `make format` | Автоформатировать код (clang-format) |
-| `make analyze` | Проверить код статическим анализатором |
-| `make docs` | Сгенерировать документацию (Doxygen) |
-| `make help` | Показать все доступные команды |
-
 # Настройка окружения
 
 ### Требования
@@ -129,4 +163,4 @@ members/username/taskN/CMakeLists.txt
 2. **Инструменты**:
    ```bash
    # Для Ubuntu/Debian
-   sudo apt install build-essential clang-format clang-tidy doxygen
+   sudo apt install build-essential clang-format clang-tidy
