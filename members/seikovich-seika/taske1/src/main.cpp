@@ -1,7 +1,6 @@
 #include <iostream>
 
-int main()
-{
-  std::cout << "first task\n";
-  return 0;
+int main(){
+    std::cout << "teste1\n";
+    return 0;
 }
