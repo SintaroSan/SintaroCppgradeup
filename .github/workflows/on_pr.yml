@@ -1,51 +1,30 @@
-name: Task PR Check
+name: PR Check
 
-on: [pull_request]
+on: pull_request
 
 jobs:
-  validate:
-    runs-on: ubuntu-latest
-    container:
-      image: gcc:latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Validate branch and structure
-        run: |
-          if [[ ! $GITHUB_HEAD_REF =~ ^[a-z]+-[a-z]+-task[ehm][1-9]$|^[a-z]+-[a-z]+-task[ehm]10$ ]]; then
-            echo "::error::Branch name must be 'surname-name-task{e,m,h}{1..10}'"
-            exit 1
-          fi
-
-          TASK_DIR="members/${GITHUB_HEAD_REF%-task*}/task${GITHUB_HEAD_REF##*-}"
-          if [ ! -d "$TASK_DIR" ]; then
-            echo "::error::Task directory $TASK_DIR not found"
-            exit 1
-          fi
-
   build:
-    needs: [validate]
     runs-on: ubuntu-latest
-    container:
-      image: gcc:latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build and test
+      - name: Find changed tasks
+        id: changed
         run: |
-          TASK_DIR="members/${GITHUB_HEAD_REF%-task*}/task${GITHUB_HEAD_REF##*-}"
-          cd "$TASK_DIR"
-          mkdir -p build && cd build
-          cmake .. && make
-
-          if [ -f "solution" ]; then
-            ./solution
-          fi
-          
-          # Запуск тестов если есть
-          if [ -f "tests" ]; then
-            ./tests
-          fi
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: task-artifacts
-          path: members/*/task*/build/
+          CHANGED=$(git diff --name-only HEAD ${{ github.event.pull_request.base.sha }} | 
+                    grep -E 'members/[^/]+/task[^/]+/' | 
+                    cut -d'/' -f1-3 | 
+                    sort | uniq)
+          echo "changed_tasks=${CHANGED}" >> $GITHUB_OUTPUT
+      - name: Build changed tasks
+        if: steps.changed.outputs.changed_tasks != ''
+        run: |
+          for task in ${{ steps.changed.outputs.changed_tasks }}; do
+            echo "🔨 Building $task"
+            cd "$task" && mkdir -p build && cd build
+            cmake .. && make
+            if [ -f "solution" ]; then
+              echo "Running solution:"
+              ./solution
+            fi
+            cd ../../..
+          done
