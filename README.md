@@ -146,9 +146,8 @@ members/username/taskN/src/main.cpp
 
 ## Ветки Git:
 
-1) Формат: surname-name-taskX
-2) Где X = e1..e10, m1..m10, h1..h10
-3) Пример: ivanov-ivan-taskm3
+1) Формат: surname-name-taskX где X = e1..e10, m1..m10, h1..h10
+2) Пример: ivanov-ivan-taskm3
 
 ## Папки с заданиями:
 
