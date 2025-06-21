@@ -66,9 +66,9 @@ CMakeLists.txt нужен вам для билдинга кода на свое�
 2) Нажмите `Pull requests` → `New pull request`
 3) Выберите:
 
-      `.base`: `main`
+      `base`: `main`
 
-      `.compare`: `ivanov-ivan-taske1`
+      `compare`: `ivanov-ivan-taske1`
 
 4) Нажмите `Create pull request` и добавьте описание:
 
