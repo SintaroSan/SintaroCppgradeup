@@ -19,7 +19,7 @@ jobs:
         if: steps.changed.outputs.changed_tasks != ''
         run: |
           for task in ${{ steps.changed.outputs.changed_tasks }}; do
-            echo "🔨 Building $task"
+            echo "Building $task"
             cd "$task" && mkdir -p build && cd build
             cmake .. && make
             if [ -f "solution" ]; then
