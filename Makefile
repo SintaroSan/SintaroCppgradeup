@@ -1,5 +1,5 @@
 MEMBERS_DIR := members
-TASKS := $(wildcard $(MEMBERS_DIR)/*/*)
+TASK_DIRS := $(wildcard $(MEMBERS_DIR)/*/*)
 BUILD_DIR := build
 CXX := g++
 CXXFLAGS := -std=c++17 -Wall -Wextra
@@ -8,9 +8,9 @@ CXXFLAGS := -std=c++17 -Wall -Wextra
 
 all: build test
 
-build: $(addprefix build-,$(TASKS))
+build: $(patsubst %,build-%,$(TASK_DIRS))
 
-test: $(addprefix test-,$(TASKS))
+test: $(patsubst %,test-%,$(TASK_DIRS))
 
 clean:
 	rm -rf $(MEMBERS_DIR)/*/$(BUILD_DIR)
@@ -19,10 +19,11 @@ format:
 	find $(MEMBERS_DIR) -name '*.cpp' -o -name '*.hpp' | xargs clang-format -i --style=file
 
 build-%:
-	@echo "Building $*..."
+	@echo "Building $*"
 	@mkdir -p $*/$(BUILD_DIR)
 	@if [ -d "$*/src" ]; then \
-		$(CXX) $(CXXFLAGS) -I$*/include $*/src/*.cpp -o $*/$(BUILD_DIR)/solution; \
+		echo "Compiling solution..."; \
+		$(CXX) $(CXXFLAGS) -I$*/include $*/src/*.cpp -o $*/$(BUILD_DIR)/solution || exit 1; \
 	else \
 		echo "Error: src directory not found in $*"; \
 		exit 1; \
@@ -30,9 +31,10 @@ build-%:
 
 test-%: build-%
 	@if [ -d "$*/tests" ]; then \
-		echo "Testing $*..."; \
-		$(CXX) $(CXXFLAGS) -I$*/include $*/tests/*.cpp -o $*/$(BUILD_DIR)/tests; \
+		echo "Compiling tests..."; \
+		$(CXX) $(CXXFLAGS) -I$*/include $*/tests/*.cpp -o $*/$(BUILD_DIR)/tests || exit 1; \
+		echo "Running tests..."; \
 		$*/$(BUILD_DIR)/tests || exit 1; \
 	else \
-		echo "No tests found for $*"; \
+		echo "No tests found in $*"; \
 	fi
