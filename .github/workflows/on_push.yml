@@ -36,8 +36,3 @@ jobs:
               echo "Directory $TASK_DIR does not exist"
             fi
           done
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: all-tasks-artifacts
-          path: members/*/task*/build/
