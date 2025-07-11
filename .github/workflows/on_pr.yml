@@ -1,4 +1,4 @@
-name: PR Validation
+name: PR Check
 
 on: pull_request
 
@@ -11,7 +11,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Detect changed tasks
+      - name: Install clang-format (optional)
+        run: apt-get update && apt-get install -y clang-format
+
+      - name: Find changed tasks
         id: changed
         run: |
           CHANGED=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..HEAD |
@@ -19,9 +22,21 @@ jobs:
                    sort | uniq)
           echo "changed_tasks=${CHANGED}" >> $GITHUB_OUTPUT
 
-      - name: Build and test changed tasks
+      - name: Validate changed tasks
         if: steps.changed.outputs.changed_tasks != ''
         run: |
           for task in ${{ steps.changed.outputs.changed_tasks }}; do
-            make build-$task test-$task || exit 1
+            # Проверка структуры папок
+            if [ ! -d "$task/src" ]; then
+              echo "Error: Missing src/ in $task"
+              exit 1
+            fi
+
+            # Сборка (использует ваш корневой Makefile)
+            make build-$task || exit 1
+
+            # Запуск тестов (если есть папка tests/)
+            if [ -d "$task/tests" ]; then
+              make test-$task || exit 1
+            fi
           done
