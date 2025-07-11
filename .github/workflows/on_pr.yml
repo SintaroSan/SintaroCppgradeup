@@ -26,16 +26,13 @@ jobs:
         if: steps.changed.outputs.changed_tasks != ''
         run: |
           for task in ${{ steps.changed.outputs.changed_tasks }}; do
-            # Проверка структуры папок
             if [ ! -d "$task/src" ]; then
               echo "Error: Missing src/ in $task"
               exit 1
             fi
 
-            # Сборка (использует ваш корневой Makefile)
             make build-$task || exit 1
 
-            # Запуск тестов (если есть папка tests/)
             if [ -d "$task/tests" ]; then
               make test-$task || exit 1
             fi
