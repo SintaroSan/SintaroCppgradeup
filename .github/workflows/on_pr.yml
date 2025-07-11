@@ -5,6 +5,8 @@ on: pull_request
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: gcc:latest
     steps:
       - uses: actions/checkout@v4
       - name: Find changed tasks
