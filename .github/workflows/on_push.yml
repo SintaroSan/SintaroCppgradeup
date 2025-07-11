@@ -16,14 +16,14 @@ jobs:
       - name: Install dependencies
         run: apt-get update && apt-get install -y clang-format
 
-      - name: Build and test all tasks
+      - name: Validate all tasks
         run: |
-          if [ -z "$(ls -A members/*/* 2>/dev/null)" ]; then
-            echo "No tasks found in members directory"
+          if ! ls members/*/*/ >/dev/null 2>&1; then
+            echo "Error: No tasks found in members directory"
             exit 1
           fi
-          
+
           make all
-          
+
           make format
           git diff --exit-code
