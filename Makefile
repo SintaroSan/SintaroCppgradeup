@@ -1,6 +1,9 @@
 MEMBERS_DIR := members
 TASKS := $(wildcard $(MEMBERS_DIR)/*/*)
-BUILD_DIRS := $(addsuffix /build,$(TASKS))
+BUILD_DIR := build
+
+CXX := g++
+CXXFLAGS := -std=c++17 -Wall -Wextra -Iinclude
 
 .PHONY: all build test clean format
 
@@ -10,19 +13,21 @@ build: $(addprefix build-,$(TASKS))
 
 test: $(addprefix test-,$(TASKS))
 
+clean:
+	rm -rf $(MEMBERS_DIR)/*/$(BUILD_DIR)
+
 format:
 	find $(MEMBERS_DIR) -name '*.cpp' -o -name '*.hpp' | xargs clang-format -i --style=file
 
 build-%:
 	@echo "Building $*..."
-	@mkdir -p $*/build && cd $*/build && \
-	cmake .. && \
-	make
+	@mkdir -p $*/$(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) $*/src/*.cpp -o $*/$(BUILD_DIR)/solution
 
 test-%: build-%
-	@if [ -f "$*/build/tests" ]; then \
+	@if [ -d "$*/tests" ]; then \
 		echo "Testing $*..."; \
-		cd $*/build && ./tests; \
+		$(CXX) $(CXXFLAGS) $*/tests/*.cpp -o $*/$(BUILD_DIR)/tests && $*/$(BUILD_DIR)/tests; \
 	else \
-		echo "ℹNo tests found for $*"; \
+		echo "No tests found for $*"; \
 	fi
