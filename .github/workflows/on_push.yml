@@ -13,12 +13,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install clang-format (optional)
+      - name: Install dependencies
         run: apt-get update && apt-get install -y clang-format
 
-      - name: Validate ALL tasks
+      - name: Build and test all tasks
         run: |
+          if [ -z "$(ls -A members/*/* 2>/dev/null)" ]; then
+            echo "No tasks found in members directory"
+            exit 1
+          fi
+          
           make all
-
-      - name: Check formatting (optional)
-        run: make format && git diff --exit-code
+          
+          make format
+          git diff --exit-code
