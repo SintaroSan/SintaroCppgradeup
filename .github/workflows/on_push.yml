@@ -6,33 +6,34 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_all:
+  build_and_test:
     runs-on: ubuntu-latest
     container:
-      image: gcc:latest
+      image: gcc:latest  # Используем образ с GCC и CMake
     steps:
       - uses: actions/checkout@v4
-      - name: Build all tasks
+
+      - name: Install dependencies (if needed)
+        run: |
+          apt-get update && apt-get install -y cmake make g++
+
+      - name: Build and test all tasks
         run: |
           for TASK_DIR in members/*/task*; do
             if [ -d "$TASK_DIR" ]; then
-              echo "Building $TASK_DIR"
+              echo "=== Processing $TASK_DIR ==="
               cd "$TASK_DIR"
+
               mkdir -p build && cd build
               cmake .. && make
-              
-              if [ -f "solution" ]; then
-                echo "Running solution:"
-                ./solution
-              fi
-              
+
               if [ -f "tests" ]; then
-                echo "Running tests:"
+                echo "--- Running tests ---"
                 ./tests
+              else
+                echo "No tests binary found!"
               fi
-              
+
               cd ../../..
-            else
-              echo "Directory $TASK_DIR does not exist"
             fi
           done
