@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install clang-format (optional)
+      - name: Install dependencies
         run: apt-get update && apt-get install -y clang-format
 
       - name: Find changed tasks
@@ -27,13 +27,8 @@ jobs:
         run: |
           for task in ${{ steps.changed.outputs.changed_tasks }}; do
             if [ ! -d "$task/src" ]; then
-              echo "Error: Missing src/ in $task"
+              echo "Error: src directory not found in $task"
               exit 1
             fi
-
-            make build-$task || exit 1
-
-            if [ -d "$task/tests" ]; then
-              make test-$task || exit 1
-            fi
+            make build-$task test-$task
           done
