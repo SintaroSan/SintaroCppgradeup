@@ -1,39 +1,24 @@
-name: Task Push Check
+name: Push Check
 
 on:
   push:
     branches: [main, master]
-  workflow_dispatch:
 
 jobs:
-  build_and_test:
+  validate_push:
     runs-on: ubuntu-latest
     container:
-      image: gcc:latest  # Используем образ с GCC и CMake
+      image: gcc:latest
+    
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies (if needed)
+      - name: Install clang-format (optional)
+        run: apt-get update && apt-get install -y clang-format
+
+      - name: Validate ALL tasks
         run: |
-          apt-get update && apt-get install -y cmake make g++
+          make all
 
-      - name: Build and test all tasks
-        run: |
-          for TASK_DIR in members/*/task*; do
-            if [ -d "$TASK_DIR" ]; then
-              echo "=== Processing $TASK_DIR ==="
-              cd "$TASK_DIR"
-
-              mkdir -p build && cd build
-              cmake .. && make
-
-              if [ -f "tests" ]; then
-                echo "--- Running tests ---"
-                ./tests
-              else
-                echo "No tests binary found!"
-              fi
-
-              cd ../../..
-            fi
-          done
+      - name: Check formatting (optional)
+        run: make format && git diff --exit-code
