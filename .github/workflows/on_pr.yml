@@ -17,15 +17,17 @@ jobs:
       - name: Find changed tasks
         id: changed
         run: |
-          CHANGED=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..HEAD |
-                   grep -oP 'members/[^/]+/task[^/]+' |
-                   sort | uniq)
+          CHANGED=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..HEAD \
+                   | grep -E 'members/[^/]+/task[^/]+/' \
+                   | cut -d/ -f1-3 \
+                   | sort -u)
           echo "changed_tasks=${CHANGED}" >> $GITHUB_OUTPUT
 
       - name: Validate changed tasks
         if: steps.changed.outputs.changed_tasks != ''
         run: |
           for task in ${{ steps.changed.outputs.changed_tasks }}; do
+            echo "Validating $task"
             if [ ! -d "$task/src" ]; then
               echo "Error: src directory not found in $task"
               exit 1
