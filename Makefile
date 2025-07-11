@@ -1,9 +1,8 @@
 MEMBERS_DIR := members
 TASKS := $(wildcard $(MEMBERS_DIR)/*/*)
 BUILD_DIR := build
-
 CXX := g++
-CXXFLAGS := -std=c++17 -Wall -Wextra -Iinclude
+CXXFLAGS := -std=c++17 -Wall -Wextra
 
 .PHONY: all build test clean format
 
@@ -22,12 +21,18 @@ format:
 build-%:
 	@echo "Building $*..."
 	@mkdir -p $*/$(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) $*/src/*.cpp -o $*/$(BUILD_DIR)/solution
+	@if [ -d "$*/src" ]; then \
+		$(CXX) $(CXXFLAGS) -I$*/include $*/src/*.cpp -o $*/$(BUILD_DIR)/solution; \
+	else \
+		echo "Error: src directory not found in $*"; \
+		exit 1; \
+	fi
 
 test-%: build-%
 	@if [ -d "$*/tests" ]; then \
 		echo "Testing $*..."; \
-		$(CXX) $(CXXFLAGS) $*/tests/*.cpp -o $*/$(BUILD_DIR)/tests && $*/$(BUILD_DIR)/tests; \
+		$(CXX) $(CXXFLAGS) -I$*/include $*/tests/*.cpp -o $*/$(BUILD_DIR)/tests; \
+		$*/$(BUILD_DIR)/tests || exit 1; \
 	else \
 		echo "No tests found for $*"; \
 	fi
