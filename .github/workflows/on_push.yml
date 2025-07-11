@@ -15,22 +15,26 @@ jobs:
       - name: Build all tasks
         run: |
           for TASK_DIR in members/*/task*; do
-            echo "Building $TASK_DIR"
-            cd "$TASK_DIR"
-            mkdir -p build && cd build
-            cmake .. && make
-            
-            if [ -f "solution" ]; then
-              echo "Running solution:"
-              ./solution
+            if [ -d "$TASK_DIR" ]; then
+              echo "Building $TASK_DIR"
+              cd "$TASK_DIR"
+              mkdir -p build && cd build
+              cmake .. && make
+              
+              if [ -f "solution" ]; then
+                echo "Running solution:"
+                ./solution
+              fi
+              
+              if [ -f "tests" ]; then
+                echo "Running tests:"
+                ./tests
+              fi
+              
+              cd ../../..
+            else
+              echo "Directory $TASK_DIR does not exist"
             fi
-            
-            if [ -f "tests" ]; then
-              echo "Running tests:"
-              ./tests
-            fi
-            
-            cd ../../..
           done
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
