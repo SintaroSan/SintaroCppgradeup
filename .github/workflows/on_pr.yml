@@ -20,7 +20,7 @@ jobs:
           CHANGED=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..HEAD \
                    | grep -E 'members/[^/]+/task[^/]+/' \
                    | cut -d/ -f1-3 \
-                   | sort -u)
+                   | sort -u | tr '\n' ' ')
           echo "changed_tasks=${CHANGED}" >> $GITHUB_OUTPUT
 
       - name: Build and test changed tasks
