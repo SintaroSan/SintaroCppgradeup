@@ -1,0 +1,32 @@
+name: Manual Full Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  full_build:
+    runs-on: ubuntu-latest
+    container:
+      image: gcc:latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          apt-get update
+          apt-get install -y clang-format
+
+      - name: Build ALL tasks
+        run: |
+          if [ -z "$(find members -name '*.cpp' -print -quit)" ]; then
+            echo "Error: No .cpp files found in any task"
+            exit 1
+          fi
+
+          make all
+
+          make format
+
+      - name: Print success
+        run: echo "All tasks built successfully!"
