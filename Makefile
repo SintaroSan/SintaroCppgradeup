@@ -1,28 +1,31 @@
-MEMBERS_DIR := members
-TASKS := $(shell find $(MEMBERS_DIR) -type d -name 'task*' -exec basename {} \;)
-BUILD_DIR := build
 CXX := g++
-CXXFLAGS := -std=c++17 -Wall
+CXXFLAGS := -std=c++17 -Wall -Wextra
+BUILD_DIR := build
+
+TASKS := $(shell find members -type d -path "*/task*" | sed 's/members\///')
 
 .PHONY: all build test format
 
-all: $(addprefix build-,$(TASKS)) $(addprefix test-,$(TASKS))
+all: build test
 
-build: $(addprefix build-,$(TASKS))
-test: $(addprefix test-,$(TASKS))
+build: $(addprefix build-,$(notdir $(TASKS)))
+
+test: $(addprefix test-,$(notdir $(TASKS)))
 
 build-%:
 	@echo "Building $*"
-	@TASK_DIR=$(shell find $(MEMBERS_DIR) -name "$*" -type d); \
-	mkdir -p $$TASK_DIR/$(BUILD_DIR); \
-	$(CXX) $(CXXFLAGS) $$TASK_DIR/src/*.cpp -o $$TASK_DIR/$(BUILD_DIR)/solution
+	@TASK_PATH=$(shell find members -name "$*" -type d); \
+	mkdir -p $$TASK_PATH/$(BUILD_DIR); \
+	$(CXX) $(CXXFLAGS) -I$$TASK_PATH/include $$TASK_PATH/src/*.cpp -o $$TASK_PATH/$(BUILD_DIR)/solution
 
 test-%: build-%
-	@TASK_DIR=$(shell find $(MEMBERS_DIR) -name "$*" -type d); \
-	if [ -d "$$TASK_DIR/tests" ]; then \
-		$(CXX) $(CXXFLAGS) $$TASK_DIR/tests/*.cpp -o $$TASK_DIR/$(BUILD_DIR)/tests; \
-		$$TASK_DIR/$(BUILD_DIR)/tests || exit 1; \
+	@TASK_PATH=$(shell find members -name "$*" -type d); \
+	if [ -d "$$TASK_PATH/tests" ]; then \
+		$(CXX) $(CXXFLAGS) -I$$TASK_PATH/include $$TASK_PATH/tests/*.cpp -o $$TASK_PATH/$(BUILD_DIR)/tests; \
+		$$TASK_PATH/$(BUILD_DIR)/tests || exit 1; \
+	else \
+		echo "No tests for $*"; \
 	fi
 
 format:
-	find $(MEMBERS_DIR) -name '*.cpp' -o -name '*.hpp' | xargs clang-format -i --style=file
+	find members -name '*.cpp' -o -name '*.hpp' | xargs clang-format -i --style=file
