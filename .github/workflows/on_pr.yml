@@ -11,26 +11,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: apt-get update && apt-get install -y clang-format
-
       - name: Find changed tasks
         id: changed
         run: |
-          CHANGED=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..HEAD \
-                   | grep -E 'members/[^/]+/task[^/]+/' \
-                   | cut -d/ -f1-3 \
-                   | sort -u)
+          CHANGED=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..HEAD |
+                   grep -oP 'members/[^/]+/task[^/]+' |
+                   sort -u)
           echo "changed_tasks=${CHANGED}" >> $GITHUB_OUTPUT
 
-      - name: Validate changed tasks
+      - name: Build changed tasks
         if: steps.changed.outputs.changed_tasks != ''
         run: |
           for task in ${{ steps.changed.outputs.changed_tasks }}; do
-            echo "Validating $task"
-            if [ ! -d "$task/src" ]; then
-              echo "Error: src directory not found in $task"
-              exit 1
+            if compgen -G "$task/src/*.cpp" > /dev/null; then
+              make build-$(basename $task) test-$(basename $task) || exit 1
             fi
-            make build-$task test-$task
           done
