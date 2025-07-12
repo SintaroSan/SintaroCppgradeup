@@ -13,14 +13,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build all tasks
+      - name: Check for .cpp files
         run: |
-          if ! compgen -G "members/*/task*/src/*.cpp" > /dev/null; then
+          if [ -z "$(find members -name '*.cpp' -print -quit)" ]; then
             echo "Error: No .cpp files found in any task"
             exit 1
           fi
 
-          make all
+      - name: Build all tasks
+        run: make all
 
-      - name: Format code
+      - name: Apply formatting
         run: make format
