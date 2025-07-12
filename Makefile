@@ -2,29 +2,28 @@ CXX := g++
 CXXFLAGS := -std=c++17 -Wall -Wextra
 BUILD_DIR := build
 
-TASKS := $(shell find members -type d -path "*/task*" | sed 's/members\///')
+TASKS := $(shell find members -mindepth 3 -maxdepth 3 -type d -name 'task*')
 
-.PHONY: all build test format
+.PHONY: all build test
 
-all: build test
-
-build: $(addprefix build-,$(notdir $(TASKS)))
-
-test: $(addprefix test-,$(notdir $(TASKS)))
+all: $(addprefix build-,$(TASKS))
 
 build-%:
 	@echo "Building $*"
-	@TASK_PATH=$(shell find members -name "$*" -type d); \
-	mkdir -p $$TASK_PATH/$(BUILD_DIR); \
-	$(CXX) $(CXXFLAGS) -I$$TASK_PATH/include $$TASK_PATH/src/*.cpp -o $$TASK_PATH/$(BUILD_DIR)/solution
+	@mkdir -p $*/$(BUILD_DIR)
+	@$(CXX) $(CXXFLAGS) \
+		-I$*/include \
+		$*/src/*.cpp \
+		-o $*/$(BUILD_DIR)/solution
 
 test-%: build-%
-	@TASK_PATH=$(shell find members -name "$*" -type d); \
-	if [ -d "$$TASK_PATH/tests" ]; then \
-		$(CXX) $(CXXFLAGS) -I$$TASK_PATH/include $$TASK_PATH/tests/*.cpp -o $$TASK_PATH/$(BUILD_DIR)/tests; \
-		$$TASK_PATH/$(BUILD_DIR)/tests || exit 1; \
-	else \
-		echo "No tests for $*"; \
+	@if [ -d "$*/tests" ]; then \
+		echo "Testing $*"; \
+		$(CXX) $(CXXFLAGS) \
+			-I$*/include \
+			$*/tests/*.cpp \
+			-o $*/$(BUILD_DIR)/tests; \
+		$*/$(BUILD_DIR)/tests || exit 1; \
 	fi
 
 format:
