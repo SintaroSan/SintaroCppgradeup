@@ -13,6 +13,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install clang-format
+        run: |
+          apt-get update
+          apt-get install -y clang-format
+
       - name: Check for .cpp files
         run: |
           if [ -z "$(find members -name '*.cpp' -print -quit)" ]; then
