@@ -163,9 +163,3 @@ members/username/taskN/src/main.cpp
    ```bash
    # Для Ubuntu/Debian
    sudo apt install build-essential clang-format clang-tidy
-
-Если нажать на кнопку, весь проект сбилдится:
-
-[![Manual Build](https://img.shields.io/badge/Manual_Build-Run_Now-blue?style=for-the-badge)](https://github.com/SEIka1/cppgradeup/actions/workflows/manual_build.yml)
-
-не нужно этого просто так делать.
