@@ -2,7 +2,7 @@ MEMBERS_DIR := members
 TASK_DIRS := $(shell find $(MEMBERS_DIR) -maxdepth 2 -mindepth 2 -type d)
 BUILD_DIR := build
 CXX := g++
-CXXFLAGS := -std=c++17 -w
+CXXFLAGS := -std=c++17 -Wall
 
 .PHONY: all build test clean format
 
