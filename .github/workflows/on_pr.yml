@@ -12,24 +12,22 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install dependencies
-        run: |
-          apt-get update
-          apt-get install -y clang-format
+        run: apt-get update && apt-get install -y clang-format
 
       - name: Find changed tasks
         id: changed
         run: |
-          CHANGED=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..HEAD | 
-                   grep -oP 'members/[^/]+/task[^/]+' |
-                   sort -u)
+          CHANGED=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..HEAD \
+                   | grep -E 'members/[^/]+/task[^/]+/' \
+                   | cut -d/ -f1-3 \
+                   | sort -u)
           echo "changed_tasks=${CHANGED}" >> $GITHUB_OUTPUT
 
       - name: Build and test changed tasks
         if: steps.changed.outputs.changed_tasks != ''
         run: |
           for task in ${{ steps.changed.outputs.changed_tasks }}; do
-            TASK_NAME=$(basename "$task")
             if [ -d "$task/src" ]; then
-              make build-$TASK_NAME test-$TASK_NAME || exit 1
+              make build-$task test-$task || exit 1
             fi
           done
