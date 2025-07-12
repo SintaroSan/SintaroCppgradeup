@@ -13,16 +13,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: apt-get update && apt-get install -y clang-format
-
-      - name: Validate all tasks
+      - name: Build all tasks
         run: |
-          if [ -z "$(find members -mindepth 2 -maxdepth 2 -type d)" ]; then
-            echo "Error: No tasks found in members directory"
+          if ! compgen -G "members/*/task*/src/*.cpp" > /dev/null; then
+            echo "Error: No .cpp files found in any task"
             exit 1
           fi
-          
+
           make all
 
-          make format
+      - name: Format code
+        run: make format
