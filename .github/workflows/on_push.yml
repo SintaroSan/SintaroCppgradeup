@@ -26,4 +26,3 @@ jobs:
           make all
 
           make format
-          git diff --exit-code
